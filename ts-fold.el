@@ -470,6 +470,21 @@ If the current node is not folded or not foldable, do nothing."
         t))))
 
 ;;;###autoload
+(defun ts-fold-close-all-selected (type)
+  "Fold all foldable syntax nodes corresponding to TYPE in the buffer."
+  (interactive "SType: ")
+  (ts-fold--ensure-ts
+    (let* ((node (tsc-root-node tree-sitter-tree))
+           (patterns (vector (list type) '@name))
+           (query (tsc-make-query tree-sitter-language patterns))
+           (nodes-to-fold (tsc-query-captures query node #'ignore))
+           )
+      (thread-last nodes-to-fold
+                   (mapcar #'cdr)
+                   (mapc #'ts-fold-close))
+      )))
+
+;;;###autoload
 (defun ts-fold-open-all ()
   "Unfold all syntax nodes in the buffer."
   (interactive)
